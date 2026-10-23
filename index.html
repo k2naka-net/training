@@ -139,6 +139,27 @@
   .st-wa{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 50%,transparent)}
   .st-inv{color:var(--muted);border-color:var(--line)}
 
+  .quotes{margin-top:20px;border-top:1px solid var(--line);padding:18px 24px 4px}
+  .quotes h3{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;color:var(--muted);margin:0 0 12px}
+  .quote{font-family:var(--serif);font-size:.95rem;line-height:1.7;padding:9px 0 9px 15px;border-left:3px solid var(--gold-foil);color:var(--fg)}
+  .quote + .quote{margin-top:8px}
+
+  /* per-mode certificate accents (light) */
+  .cert.cloud{--accent:#2f72c4;--accent-ink:#2359a0;--gold:#7fa8d6;--gold-foil:#a9c6e6;--seal:#2f72c4}
+  .cert.designer{--accent:#d14f86;--accent-ink:#b03a6c;--gold:#c98aa8;--gold-foil:#e3a9c4;--seal:#d6568a}
+  .cert.network{--accent:#c56a1e;--accent-ink:#9e5316;--gold:#d6a067;--gold-foil:#e6c199;--seal:#c56a1e}
+  .cert.night{--accent:#6a4fc4;--accent-ink:#5339a0;--gold:#9a86d6;--gold-foil:#bfaee6;--seal:#6a4fc4}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    .cert.cloud{--accent:#6fb0f2;--accent-ink:#a9cff8;--gold:#a9c6e6;--gold-foil:#c6ddf2;--seal:#6fb0f2}
+    .cert.designer{--accent:#f49bc0;--accent-ink:#f9c2da;--gold:#e3a9c4;--gold-foil:#f2c8dc;--seal:#f49bc0}
+    .cert.network{--accent:#e8a24e;--accent-ink:#f2c489;--gold:#e6c199;--gold-foil:#f0d6b3;--seal:#e8a24e}
+    .cert.night{--accent:#a78ff2;--accent-ink:#c6b6f8;--gold:#bfaee6;--gold-foil:#d6caf2;--seal:#a78ff2}
+  }}
+  :root[data-theme="dark"] .cert.cloud{--accent:#6fb0f2;--accent-ink:#a9cff8;--gold:#a9c6e6;--gold-foil:#c6ddf2;--seal:#6fb0f2}
+  :root[data-theme="dark"] .cert.designer{--accent:#f49bc0;--accent-ink:#f9c2da;--gold:#e3a9c4;--gold-foil:#f2c8dc;--seal:#f49bc0}
+  :root[data-theme="dark"] .cert.network{--accent:#e8a24e;--accent-ink:#f2c489;--gold:#e6c199;--gold-foil:#f0d6b3;--seal:#e8a24e}
+  :root[data-theme="dark"] .cert.night{--accent:#a78ff2;--accent-ink:#c6b6f8;--gold:#bfaee6;--gold-foil:#d6caf2;--seal:#a78ff2}
+
   .sig{margin:16px 24px 0;padding:13px 15px;background:var(--panel2);border:1px solid var(--line);border-radius:10px}
   .sig .sl{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;color:var(--muted);margin-bottom:6px}
   .sig .hex{font-family:var(--mono);font-size:.66rem;color:var(--accent-ink);word-break:break-all;line-height:1.7}
@@ -191,10 +212,10 @@
   <div id="stage">
     <div class="card" id="formCard">
       <div class="modes" id="modes" role="group" aria-label="診断モード">
-        <button type="button" class="mode" data-mode="general" aria-pressed="true"><b>一般診断</b><span>人類共通の持病を検査</span></button>
-        <button type="button" class="mode" data-mode="gov" aria-pressed="false"><b>自治体IT職員</b><span>紙・押印・年度末に対応</span></button>
-        <button type="button" class="mode" data-mode="infra" aria-pressed="false"><b>インフラ屋</b><span>オンコールと再起動信仰</span></button>
-        <button type="button" class="mode" data-mode="night" aria-pressed="false"><b>深夜のエンジニア</b><span>金曜デプロイ耐性を測定</span></button>
+        <button type="button" class="mode" data-mode="cloud" aria-pressed="true"><b>クラウド何でも屋</b><span>請求額と消し忘れに対応</span></button>
+        <button type="button" class="mode" data-mode="designer" aria-pressed="false"><b>ホームページデザイナー</b><span>曖昧な修正指示に対応</span></button>
+        <button type="button" class="mode" data-mode="network" aria-pressed="false"><b>ネットワーク屋</b><span>DNSとACLに対応</span></button>
+        <button type="button" class="mode" data-mode="night" aria-pressed="false"><b>引退間近のインフラ屋</b><span>AI時代への耐性を測定</span></button>
       </div>
       <form id="scanForm">
         <label>因縁のあるIPアドレス
@@ -228,7 +249,7 @@
 (function(){
   var $=function(s,r){return (r||document).querySelector(s)};
   var stage=$("#stage"), fine=$("#fine");
-  var mode="general", sound=true;
+  var mode="cloud", sound=true;
 
   /* ---------- deterministic RNG ---------- */
   function hash(str){var h=2166136261>>>0;for(var i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)>>>0}return h>>>0}
@@ -236,52 +257,56 @@
 
   /* ---------- content ---------- */
   var PACKS={
-    general:[
-      {c:"CVE-月曜-0800",n:"朝会抵抗性の欠如。開始3分で意識が外部へ流出する。"},
-      {c:"CVE-締切-2359",n:"「進捗どうですか」攻撃により内部状態が容易に崩壊する。"},
-      {c:"CVE-金曜-1700",n:"定時退社の意志が、隣席からのパケットで上書きされる。"},
-      {c:"CVE-給湯-1500",n:"午後3時にチョコレートを要求するバッファが溢れる。"},
-      {c:"CVE-通知-9999",n:"未読バッジを放置できない特権昇格。赤い丸に支配される。"},
-      {c:"CVE-ネコ-0000",n:"作業中にキーボードへ第三者（ネコ）が侵入。対策不能。"},
-      {c:"CVE-充電-0012",n:"残り12%で突然やる気の電源が落ちる。"},
-      {c:"CVE-返信-later",n:"「あとで返信する」が永遠に実行されないデッドロック。"},
-      {c:"CVE-昼食-1200",n:"何を食べるか決定できず、無限ループに陥る。"},
-      {c:"CVE-積読-∞",n:"未読本がメモリを圧迫し続けるが、解放する気はない。"}
+    cloud:[
+      {c:"CVE-請求-月末",n:"月末に届く請求額が、先月の自分の楽観的な見積もりを毎回上回る。"},
+      {c:"CVE-消し忘れ-課金",n:"検証用に立てたリソースが、半年間ひっそりと課金され続けていた。"},
+      {c:"CVE-IAM-拒否",n:"権限が足りず操作が弾かれるが、付けすぎると今度はレビューで怒られる。"},
+      {c:"CVE-サーバーレス-幻",n:"「サーバーレス」を掲げながら、夜はサーバーのことばかり考えている。"},
+      {c:"CVE-リージョン-異郷",n:"急いで作ったリソースが、気づけば遠い海外リージョンに建っている。"},
+      {c:"CVE-無料枠-崖",n:"無料枠を一歩はみ出した瞬間、課金の崖から静かに転落する。"},
+      {c:"CVE-タグ-無法",n:"命名とタグ付けのルールが、3人目の参加者で早くも形骸化する。"},
+      {c:"CVE-とりあえず-VM",n:"あらゆる課題を、まず仮想マシンを1台立てることで解決しようとする。"},
+      {c:"CVE-IaC-手動drift",n:"コードで管理しているはずの構成が、深夜の手作業で静かに乖離する。"},
+      {c:"CVE-マルチクラウド-建前",n:"「特定ベンダに縛られない」と宣言しつつ、実質1社に全依存している。"}
     ],
-    gov:[
-      {c:"CVE-紙-1998",n:"電子化方針にもかかわらず、重要案件が紙で再出力される。"},
-      {c:"CVE-押印-求",n:"決裁フローの末端で、物理的な円形認証（判子）を要求される。"},
-      {c:"CVE-FAX-継続",n:"レガシー送受信装置が、廃止予定のまま25年間稼働し続ける。"},
-      {c:"CVE-年度末-0331",n:"3月31日に全処理が集中し、スタックが天井に達する。"},
-      {c:"CVE-標準化-移行",n:"移行期限は見えているが、現場リソースが慢性的に枯渇。"},
-      {c:"CVE-エクセル-神",n:"方眼紙状の表計算ファイルが、業務の唯一の仕様書と化す。"},
-      {c:"CVE-ベンダ-依存",n:"仕様変更のたびに外部ベンダへの問い合わせが発生する。"},
-      {c:"CVE-窓口-9時",n:"開庁と同時に全チャネルへ同時アクセスが殺到する。"},
-      {c:"CVE-要綱-改正",n:"根拠規程が改正されるたび、様式が静かに増殖する。"}
+    designer:[
+      {c:"CVE-パッと-曖昧",n:"「なんかもっと、パッと華やかな感じで」という仕様外の要求を受理できず停止する。"},
+      {c:"CVE-ロゴ-巨大化",n:"校了直前の「ロゴだけもう少し大きく」により、整えたレイアウトが一撃で崩壊する。"},
+      {c:"CVE-余白-埋設要求",n:"意図して空けた余白を「寂しいから埋めて」と言われ、設計思想が静かに上書きされる。"},
+      {c:"CVE-フォント-迷宮",n:"見出しの書体選びに3時間を溶かし、結局いちばん最初の候補に戻る。"},
+      {c:"CVE-配色-無限",n:"配色の微調整が収束せず、ほぼ同じ緑の間を延々と往復し続ける。"},
+      {c:"CVE-最終-真最終",n:"「最終_本当にこれで_final_v7」が最終でないことを、関係者全員が知っている。"},
+      {c:"CVE-カーニング-不眠",n:"街の看板の字間が気になり安眠が妨げられる。職業病として常駐する。"},
+      {c:"CVE-素材-72dpi",n:"「素材はこちらで用意します」と渡されたロゴが、低解像度のjpg1枚だった。"},
+      {c:"CVE-戻して-後出し",n:"丁寧に直した直後に「やっぱり前の方が良かった」と元へ差し戻される。"},
+      {c:"CVE-スマホ-追加",n:"納品間際に「これスマホでも見れるよね?」が、さも当然のように仕様へ追加される。"}
     ],
-    infra:[
-      {c:"CVE-オンコール-深夜",n:"就寝直後にアラートが発火し、セッションが強制復帰する。"},
-      {c:"CVE-再起動-信仰",n:"原因不明の不具合が「とりあえず再起動」で直り、学びが得られない。"},
-      {c:"CVE-DNS-毎回",n:"障害の根本原因が、高確率で名前解決に帰着する。"},
-      {c:"CVE-証明書-失効",n:"更新忘れにより、深夜に突然の信頼関係破綻が発生する。"},
-      {c:"CVE-ケーブル-抜け",n:"高度な調査の末、物理層の緩みが原因と判明する。"},
-      {c:"CVE-容量-98%",n:"ディスク使用率が常に限界近傍で平衡状態を保つ。"},
-      {c:"CVE-手順書-古",n:"参照した手順書のバージョンが、現実より2世代古い。"},
-      {c:"CVE-監視-無音",n:"アラートが鳴らないのは、監視が止まっているからである。"},
-      {c:"CVE-バックアップ-未検証",n:"取得はしているが、復元できるかは誰も確かめていない。"}
+    network:[
+      {c:"CVE-DNS-やはり",n:"原因を一通り疑った末、結局いつも名前解決に行き着く。"},
+      {c:"CVE-ACL-黙殺",n:"疎通しない原因を3時間追い、最後に1行の許可ルール漏れが見つかる。"},
+      {c:"CVE-サブネット-算数",n:"/26と/27の境界を、毎回電卓を叩いて確かめ直す。"},
+      {c:"CVE-遅延-濡れ衣",n:"「ネットワークが遅い」の第一容疑者にされるが、真犯人は大抵アプリ側。"},
+      {c:"CVE-ping-通過",n:"pingは元気に通るのに、肝心のアプリは一向に応答しない。"},
+      {c:"CVE-VLAN-ループ",n:"善意で挿した1本の配線が、網全体を一瞬で沈黙させる。"},
+      {c:"CVE-MTU-断片",n:"原因不明の通信不良を追い詰めると、パケットサイズに行き着く。"},
+      {c:"CVE-冗長-共倒れ",n:"冗長化したはずの2台が、仲良く同じ瞬間に機能停止する。"},
+      {c:"CVE-メンテ-深夜",n:"切替作業は、なぜか人類が最も眠い時間帯に割り当てられる。"},
+      {c:"CVE-経路-非対称",n:"行きと帰りで経路が食い違い、通信が片道で迷子になる。"}
     ],
     night:[
-      {c:"CVE-金曜-デプロイ",n:"週末直前に本番反映を試みる自己破壊的衝動を抑制できない。"},
-      {c:"CVE-force-push",n:"履歴を力づくで上書きし、共有ブランチを静かに破壊する。"},
-      {c:"CVE-本番-確認",n:"検証環境を飛ばし、本番で挙動を確かめる悪癖がある。"},
-      {c:"CVE-コーヒー-過量",n:"カフェイン濃度とコード品質が、ある点を超えて反比例する。"},
-      {c:"CVE-あと1行-嘘",n:"「あと1行で終わる」の宣言から実際の完了まで平均3時間。"},
-      {c:"CVE-TODO-化石",n:"コメント中のTODOが、考古学的地層を形成している。"},
-      {c:"CVE-動いた-なぜ",n:"なぜ動くか説明できないコードが、本番で安定稼働している。"},
-      {c:"CVE-命名-断念",n:"変数名を考えるのに疲れ、data2・tmp_finalが量産される。"}
+      {c:"CVE-AI-即答",n:"若手が「AIに聞きました」と即答してくるが、裏取りを追う体力がもう残っていない。"},
+      {c:"CVE-Runbook-陳腐化",n:"生涯をかけて手順書を書いてきたのに、AIが30秒で同等のものを生成する。"},
+      {c:"CVE-経験則-論破",n:"長年の勘を頼りに語ると、AIに「よくある構成ミスですね」と穏やかに一蹴される。"},
+      {c:"CVE-とりあえず-AI",n:"「とりあえず再起動」の次の切り札として、「とりあえずAIに貼る」を覚えた。"},
+      {c:"CVE-プロンプト-不得手",n:"ラックの配線は完璧に把握しているが、プロンプトのコツだけは掴めない。"},
+      {c:"CVE-武勇伝-要約",n:"障害対応の武勇伝が止まらないが、若手は横でAIに要約させている。"},
+      {c:"CVE-AI障害-防衛線",n:"「AIが落ちたら結局だれが直すんだ」と、一人だけ本気で心配している。"},
+      {c:"CVE-学習-徒労",n:"新技術をやっと覚えた矢先に、それごとAIエージェントへ置き換わる気配を感じる。"},
+      {c:"CVE-CLI-手癖",n:"viとsedは手が勝手に動くのに、チャット欄へ日本語で頼むのには未だ慣れない。"},
+      {c:"CVE-EOL-我が身",n:"製品のサポート終了日と自分の定年の日付を、つい見比べてしまう。"}
     ]
   };
-  var MODE_LABEL={general:"一般診断",gov:"自治体IT職員 診断",infra:"インフラ屋 診断",night:"深夜のエンジニア 診断"};
+  var MODE_LABEL={cloud:"クラウド何でも屋 診断",designer:"ホームページデザイナー 診断",network:"ネットワーク屋 診断",night:"引退間近のインフラ屋 診断"};
   var STATUS=[{t:"対応済（パッチ適用済）",c:"st-fixed"},{t:"回避策あり（気合いで対処）",c:"st-wa"},{t:"調査中（見なかったことに）",c:"st-inv"}];
   var SEV=[{t:"軽微",c:"sev-1"},{t:"中程度",c:"sev-2"},{t:"要経過観察",c:"sev-2"},{t:"持病（仕様）",c:"sev-3"}];
   var VERDICTS=[
@@ -292,6 +317,18 @@
     "セキュアです。ただしネコの前では全ての防御が無効化されます。"
   ];
   var INSPECTOR=["検査員 第壱号","主任鑑定士 ガバクラ丸","脆弱性ソムリエ 宵風","夜勤担当AI ver.3"];
+  var QUOTES=[
+    "「予算はないけど、クオリティは高めで」",
+    "「まだ初稿ですよね? 完成度はこれからって感じで」（＝完成度を求めている）",
+    "「シンプルにしてください。あ、情報は全部載せたいです」",
+    "「若い人にウケる感じで、でも上品に、あと信頼感も」",
+    "「他社さんのこのサイトみたいに。あ、パクリはダメですよ」",
+    "「とりあえず仮でいいので、本番クオリティでお願いします」",
+    "「センスにお任せします」（※のちに全ページ赤字で戻る）",
+    "「ロゴ、気分で変わるかもしれません」",
+    "「急ぎじゃないです」（＝明日の朝まで）",
+    "「なんかこう、エモい感じ…わかります?」"
+  ];
 
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
   function jdate(d){return d.getFullYear()+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日"}
@@ -338,8 +375,15 @@
         '<span class="chip '+f.s.c+'">'+esc(f.s.t)+'</span></div></div></div>';
     });
 
+    var quotesHTML="";
+    if(mode==="designer"){
+      var qpool=QUOTES.slice(),qs=[];
+      for(var q=0;q<3 && qpool.length;q++){qs.push(qpool.splice(Math.floor(rnd()*qpool.length),1)[0])}
+      var qrows="";qs.forEach(function(t){qrows+='<div class="quote">'+esc(t)+'</div>'});
+      quotesHTML='<div class="quotes"><h3>付記 ・ クライアント名言録</h3>'+qrows+'</div>';
+    }
     return ''+
-    '<div class="cert" id="cert">'+
+    '<div class="cert '+mode+'" id="cert">'+
       '<div class="cert-top">'+
         '<span class="ribbon">'+esc(MODE_LABEL[mode])+'</span>'+
         '<h2>脆 弱 性 対 応 証 明 書</h2>'+
@@ -369,6 +413,7 @@
         '<dt>担当検査員</dt><dd>'+esc(insp)+'</dd>'+
       '</dl>'+
       '<div class="findings"><h3>検出事項（'+finds.length+'件）</h3>'+rows+'</div>'+
+      quotesHTML+
       '<div class="sig"><div class="sl">電子署名（SHA-256 風・飾り）</div><div class="hex">'+hxGrp+'</div></div>'+
       '<div class="sealbox">'+sealSVG()+
         '<div class="issuer"><b>全国脆弱性対応証明協会</b><br>上記の者を当協会認定の「概ね大丈夫な人」として証する。</div></div>'+
